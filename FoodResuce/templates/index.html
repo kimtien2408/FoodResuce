@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FoodRescue Việt Nam</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <header class="site-header">
+        <div class="container navbar">
+            <a class="logo" href="{{ url_for('index') }}">🌿 FoodRescue Việt Nam</a>
+            <nav class="nav-links" aria-label="Điều hướng chính">
+                <a href="{{ url_for('customer_shop') if session.get('role') == 'Customer' else '#deals' }}">Mua hàng</a>
+                <a href="#partner">Đối tác</a>
+                <a href="#how-it-works">Cách hoạt động</a>
+                <a href="#footer">Blog</a>
+            </nav>
+            {% if session.get('user_id') %}
+                <a class="login" href="{{ url_for('account_profile') }}">Hồ sơ</a>
+                {% if session.get('role') == 'Customer' %}
+                    <a class="login" href="{{ url_for('view_cart') }}">Giỏ hàng ({{ cart_count|default(0) }})</a>
+                {% endif %}
+                <a class="login" href="{{ url_for('logout') }}">Đăng xuất</a>
+            {% else %}
+                <a class="login" href="{{ url_for('login') }}">Đăng nhập</a>
+            {% endif %}
+        </div>
+    </header>
+
+    <main>
+        <section class="hero">
+            <div class="container hero-content">
+                <div>
+                    <p class="eyebrow">Hơn 120 suất đang chờ được cứu hôm nay</p>
+                    <h1>Ăn ngon hơn.<br><span>Tiết kiệm tiền thật.</span></h1>
+                    <p class="hero-description">Kết nối với nhà hàng, tiệm bánh và siêu thị gần bạn để mua thực phẩm cuối ngày chất lượng với giá giảm tới 70%.</p>
+                    <a class="button" href="#deals">Tìm suất gần tôi →</a>
+                </div>
+                <div class="hero-image" aria-label="Món ăn đang chờ được giải cứu">🥗</div>
+            </div>
+        </section>
+
+        <section class="container stats">
+            <div><strong>12,480</strong><span>Suất ăn đã cứu</span></div>
+            <div><strong>3.2 tấn</strong><span>Thực phẩm giảm thải</span></div>
+            <div><strong>580+</strong><span>Đối tác cửa hàng</span></div>
+            <div><strong>28,000</strong><span>Người dùng tích cực</span></div>
+        </section>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <div class="container flash flash-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endwith %}
+
+        <section class="section container" id="deals">
+            <div class="section-title">
+                <div>
+                    <h2>Đang có mặt ngay bây giờ</h2>
+                    <p>Cập nhật theo thời gian thực - đặt trước khi hết</p>
+                </div>
+                <a class="more" href="#deals">Xem tất cả →</a>
+            </div>
+
+            <div class="categories">
+                <a class="category active" href="#deals">Tất cả</a>
+                <a class="category" href="#deals">Bánh &amp; Café</a>
+                <a class="category" href="#deals">Nhà hàng</a>
+                <a class="category" href="#deals">Siêu thị</a>
+                <a class="category" href="#deals">Cơm hộp</a>
+                <a class="category" href="#deals">Hoa quả</a>
+                <a class="category" href="#deals">Đồ uống</a>
+            </div>
+
+            <div class="food-grid">
+                {% for item in batches %}
+                    <article class="food-card">
+                        <div class="food-image">
+                            {% if item.ImageUrl %}
+                                <img src="{{ item.ImageUrl }}" alt="{{ item.FoodName }}">
+                            {% else %}
+                                <span aria-hidden="true">🥐</span>
+                            {% endif %}
+                            {% if item.OriginalPrice and item.OriginalPrice > 0 %}
+                                <span class="discount">-{{ "{:.0f}".format((1 - item.RescuePrice / item.OriginalPrice) * 100) }}%</span>
+                            {% endif %}
+                        </div>
+                        <div class="food-info">
+                            <p class="store">{{ item.StoreName }}</p>
+                            <h3>{{ item.FoodName }}</h3>
+                            <p class="meta">📍 {{ item.Address }}</p>
+                            <p class="meta">⏰ Nhận hàng: {{ item.PickupStartTime }} - {{ item.PickupEndTime }}</p>
+                            <p class="remaining">Còn {{ item.AvailableQuantity }} suất</p>
+                            <div class="price-line">
+                                <div class="price">
+                                    <strong>{{ "{:,.0f}".format(item.RescuePrice) }}đ</strong>
+                                    <del>{{ "{:,.0f}".format(item.OriginalPrice) }}đ</del>
+                                </div>
+                            </div>
+                            <form class="order-form" action="{{ url_for('add_to_cart') }}" method="post">
+                                <input type="hidden" name="batch_id" value="{{ item.BatchId }}">
+                                <input type="hidden" name="quantity" value="1">
+                                <button type="submit">Thêm vào giỏ hàng</button>
+                            </form>
+                        </div>
+                    </article>
+                {% else %}
+                    <div class="empty">
+                        <h3>Hiện tại không có món ăn nào cần giải cứu.</h3>
+                        <p>Vui lòng quay lại sau để tìm những món ngon mới nhé.</p>
+                    </div>
+                {% endfor %}
+            </div>
+        </section>
+
+        <section class="section steps-section" id="how-it-works">
+            <div class="container">
+                <div class="section-title"><div><h2>Chỉ 3 bước để giải cứu</h2><p>Đơn giản, nhanh chóng và có ý nghĩa</p></div></div>
+                <div class="steps">
+                    <article class="step"><b>📍</b><small>BƯỚC 01</small><h3>Khám phá gần bạn</h3><p>Duyệt các suất ăn cuối ngày từ các cửa hàng xung quanh bạn.</p></article>
+                    <article class="step"><b>🛒</b><small>BƯỚC 02</small><h3>Đặt &amp; thanh toán</h3><p>Chọn món bạn thích và nhận mã lấy hàng ngay lập tức.</p></article>
+                    <article class="step"><b>✅</b><small>BƯỚC 03</small><h3>Đến lấy đúng giờ</h3><p>Ghé cửa hàng trong khung giờ quy định là hoàn tất.</p></article>
+                </div>
+            </div>
+        </section>
+
+        <section class="section container" id="partner">
+            <div class="partner">
+                <div><p class="eyebrow">Dành cho doanh nghiệp</p><h2>Bạn là chủ cửa hàng?</h2><p>Đăng ký đối tác miễn phí và thu hồi chi phí từ thực phẩm cuối ngày thay vì bỏ đi.</p></div>
+                <a class="outline" href="#footer">Đăng ký đối tác</a>
+            </div>
+        </section>
+
+        <section class="section container">
+            <div class="section-title"><div><h2>Người dùng nói gì</h2><p>Những thay đổi nhỏ tạo nên tác động lớn</p></div></div>
+            <div class="reviews">
+                <article class="review"><strong>Nguyễn Thị Mai</strong><div class="stars">★★★★★</div><p>“Tiết kiệm được gần 1 triệu mỗi tháng mà đồ ăn vẫn ngon.”</p></article>
+                <article class="review"><strong>Trần Văn Hùng</strong><div class="stars">★★★★★</div><p>“Tôi thu thêm được từ những suất ăn còn lại thay vì phải bỏ đi.”</p></article>
+                <article class="review"><strong>Lê Phương Linh</strong><div class="stars">★★★★★</div><p>“Đặt cơm qua web rất tiện, giá rẻ mà chất lượng đảm bảo.”</p></article>
+            </div>
+        </section>
+    </main>
+
+    <footer id="footer">
+        <div class="container footer-grid">
+            <div><a class="logo" href="{{ url_for('index') }}">🌿 FoodRescue</a><p>Giảm lãng phí, tiết kiệm tiền, vì cộng đồng bền vững.</p></div>
+            <div><h3>KHÁM PHÁ</h3><a href="#deals">Tìm suất gần tôi</a><br><a href="#deals">Đặt hàng trước</a></div>
+            <div><h3>ĐỐI TÁC</h3><a href="#partner">Đăng ký cửa hàng</a><br><a href="#partner">Dashboard quản lý</a></div>
+        </div>
+        <div class="container copyright">© 2026 FoodRescue Việt Nam. Đồ án môn Cơ sở dữ liệu nâng cao</div>
+    </footer>
+</body>
+</html>

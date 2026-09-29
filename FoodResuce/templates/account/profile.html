@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hồ sơ cá nhân - FoodRescue</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="shop-index-page">
+    <header class="shop-header">
+        <div class="container shop-header-content">
+            {% if profile.Role == 'ShopOwner' %}
+                <a class="shop-brand" href="{{ url_for('shop_dashboard') }}">FoodRescue Shop</a>
+            {% else %}
+                <a class="shop-brand" href="{{ url_for('index') }}">FoodRescue Việt Nam</a>
+            {% endif %}
+            <nav class="shop-nav">
+                {% if profile.Role == 'ShopOwner' %}
+                    <a href="{{ url_for('shop_dashboard') }}">Kho hàng</a>
+                    <a href="{{ url_for('shop_orders') }}">Đơn hàng</a>
+                {% else %}
+                    <a href="{{ url_for('index') }}">Trang chủ</a>
+                {% endif %}
+                <a class="active" href="{{ url_for('account_profile') }}">Hồ sơ</a>
+                <a href="{{ url_for('logout') }}">Đăng xuất</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container product-page">
+        <section class="shop-panel product-page-panel">
+            <p class="eyebrow">Tài khoản {{ 'chủ cửa hàng' if profile.Role == 'ShopOwner' else 'khách hàng' }}</p>
+            <h1>Hồ sơ cá nhân</h1>
+            <p class="page-description">Cập nhật thông tin liên hệ và thông tin đăng nhập của bạn.</p>
+
+            {% with messages = get_flashed_messages(with_categories=true) %}
+                {% for category, message in messages %}
+                    <div class="flash flash-{{ category }}">{{ message }}</div>
+                {% endfor %}
+            {% endwith %}
+
+            <form class="shop-form product-page-form" action="{{ url_for('account_profile') }}" method="post">
+                <label for="full_name">Họ và tên
+                    <input id="full_name" name="full_name" type="text" maxlength="100" value="{{ profile.FullName }}" required>
+                </label>
+                <label for="email">Email
+                    <input id="email" name="email" type="email" maxlength="100" value="{{ profile.Email }}" required>
+                </label>
+                <label for="phone_number">Số điện thoại
+                    <input id="phone_number" name="phone_number" type="tel" maxlength="15" value="{{ profile.PhoneNumber }}" required>
+                </label>
+                <label for="current_password">Mật khẩu hiện tại <span>(chỉ cần nhập khi đổi mật khẩu)</span>
+                    <input id="current_password" name="current_password" type="password" autocomplete="current-password">
+                </label>
+                <label for="new_password">Mật khẩu mới <span>(để trống nếu không đổi)</span>
+                    <input id="new_password" name="new_password" type="password" minlength="8" maxlength="255" autocomplete="new-password">
+                </label>
+                <label for="confirm_password">Nhập lại mật khẩu mới
+                    <input id="confirm_password" name="confirm_password" type="password" minlength="8" maxlength="255" autocomplete="new-password">
+                </label>
+                <button class="shop-submit" type="submit">Lưu thay đổi</button>
+            </form>
+        </section>
+    </main>
+</body>
+</html>

@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Xóa {{ batch.FoodName }} - FoodRescue</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="shop-index-page">
+    <main class="container product-page">
+        <a class="back-link" href="{{ url_for('shop_dashboard') }}">← Quay lại kho hàng</a>
+        <section class="shop-panel product-page-panel">
+            <p class="eyebrow">Sản phẩm #{{ batch.BatchId }}</p>
+            <h1>Xóa sản phẩm</h1>
+            <p class="page-description">Bạn đang chọn xóa <strong>{{ batch.FoodName }}</strong>.</p>
+
+            {% if batch.HasOrders %}
+                <div class="flash flash-danger">Không thể xóa sản phẩm vì đã phát sinh đơn hàng.</div>
+                <a class="shop-edit-link" href="{{ url_for('shop_dashboard') }}">Quay lại kho hàng</a>
+            {% else %}
+                <p>Thao tác này sẽ xóa sản phẩm khỏi cửa hàng và không thể hoàn tác.</p>
+                <form action="{{ url_for('delete_shop_product', batch_id=batch.BatchId) }}" method="post">
+                    <button class="shop-delete" type="submit">Xác nhận xóa</button>
+                    <a class="shop-edit-link" href="{{ url_for('shop_dashboard') }}">Hủy</a>
+                </form>
+            {% endif %}
+        </section>
+    </main>
+</body>
+</html>

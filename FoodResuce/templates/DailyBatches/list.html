@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kho hàng - FoodRescue</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="shop-index-page">
+    <header class="shop-header">
+        <div class="container shop-header-content">
+            <a class="shop-brand" href="{{ url_for('shop_dashboard') }}">FoodRescue Shop</a>
+            <nav class="shop-nav">
+                <a class="active" href="#products">Danh sách sản phẩm</a>
+                <a href="{{ url_for('shop_orders') }}" target="_blank">Đơn hàng</a>
+                <a href="{{ url_for('account_profile') }}">Hồ sơ</a>
+                <span>Xin chào, {{ session.get('full_name') }}</span>
+                <a href="{{ url_for('logout') }}">Đăng xuất</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container shop-main">
+        <div class="shop-title-row">
+            <div>
+                <p class="eyebrow">{{ store.StoreName if store else 'Thiết lập cửa hàng' }}</p>
+                <h1>Kho hàng sản phẩm</h1>
+                <p>Quản lý, cập nhật và theo dõi các sản phẩm đang bán.</p>
+            </div>
+            {% if store %}
+                <a class="shop-add-button" href="{{ url_for('add_shop_product') }}" target="_blank">＋ Thêm sản phẩm mới</a>
+            {% endif %}
+        </div>
+
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% for category, message in messages %}
+                <div class="flash flash-{{ category }}">{{ message }}</div>
+            {% endfor %}
+        {% endwith %}
+
+        {% if not store %}
+            <section class="shop-panel setup-panel" id="store-setup">
+                <h2>Tạo thông tin cửa hàng</h2>
+                <p>Bạn cần tạo cửa hàng trước khi đăng sản phẩm.</p>
+                <form class="shop-form" action="{{ url_for('save_shop_store') }}" method="post">
+                    <label>Tên cửa hàng<input name="store_name" type="text" required></label>
+                    <label>Số điện thoại<input name="phone_number" type="tel" required></label>
+                    <label>Địa chỉ<input name="address" type="text" required></label>
+                    <label>Giờ đóng cửa<input name="closing_time" type="time" required></label>
+                    <button class="shop-submit" type="submit">Tạo cửa hàng</button>
+                </form>
+            </section>
+        {% else %}
+            <section class="shop-store-info">
+                <strong>{{ store.StoreName }}</strong>
+                <span>{{ store.Address }}</span>
+                <span>Hotline: {{ store.PhoneNumber }}</span>
+            </section>
+
+            <section id="products">
+                <div class="shop-section-heading"><div><h2>Sản phẩm đang bán</h2><p>Chỉ hiển thị sản phẩm thuộc cửa hàng của bạn.</p></div><span>{{ batches|length }} sản phẩm</span></div>
+                <div class="shop-product-grid">
+                    {% for batch in batches %}
+                        <article class="shop-product-card">
+                            <div class="shop-product-image">
+                                {% if batch.ImageUrl %}<img src="{{ batch.ImageUrl }}" alt="{{ batch.FoodName }}">{% else %}<span>🥐</span>{% endif %}
+                                <span class="shop-product-number">#{{ batch.BatchId }}</span>
+                                <span class="shop-stock">Còn hàng: {{ batch.AvailableQuantity }}</span>
+                            </div>
+                            <div class="shop-product-content">
+                                <span class="shop-category">SUẤT ĂN</span>
+                                <h3>{{ batch.FoodName }}</h3>
+                                <p class="shop-description">Nhận hàng: {{ batch.PickupStartTime }} - {{ batch.PickupEndTime }}</p>
+                                <div class="shop-price">{{ "{:,.0f}".format(batch.RescuePrice) }}đ <del>{{ "{:,.0f}".format(batch.OriginalPrice) }}đ</del></div>
+                                <div class="shop-card-actions">
+                                    <a class="shop-view" href="{{ url_for('show_shop_product', batch_id=batch.BatchId) }}" target="_blank">◉ Xem</a>
+                                    <a class="shop-edit" href="{{ url_for('edit_shop_product', batch_id=batch.BatchId) }}" target="_blank">✏ Sửa</a>
+                                    {% if batch.HasOrders %}
+                                        <span class="shop-delete" title="Sản phẩm đã phát sinh đơn hàng">Đã bán</span>
+                                    {% else %}
+                                        <a class="shop-delete" href="{{ url_for('delete_shop_product', batch_id=batch.BatchId) }}">Xóa</a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </article>
+                    {% else %}
+                        <div class="shop-empty">Bạn chưa có sản phẩm nào. Hãy thêm sản phẩm đầu tiên.</div>
+                    {% endfor %}
+                </div>
+            </section>
+
+        {% endif %}
+    </main>
+</body>
+</html>

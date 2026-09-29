@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>Giỏ hàng - FoodRescue</title>
+	<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="shop-index-page">
+	<header class="shop-header">
+		<div class="container shop-header-content">
+			<a class="shop-brand" href="{{ url_for('customer_shop') }}">FoodRescue</a>
+			<nav class="shop-nav">
+				<a href="{{ url_for('customer_shop') }}">Mua hàng</a>
+				<a class="active" href="{{ url_for('view_cart') }}">Giỏ hàng ({{ cart_count }})</a>
+				<a href="{{ url_for('account_profile') }}">Hồ sơ</a>
+				<span>Xin chào, {{ session.get('full_name') }}</span>
+				<a href="{{ url_for('logout') }}">Đăng xuất</a>
+			</nav>
+		</div>
+	</header>
+
+	<main class="container shop-main">
+		<div class="shop-title-row">
+			<div>
+				<p class="eyebrow">Đơn hàng của bạn</p>
+				<h1>Giỏ hàng</h1>
+				<p>Các món có thể đến từ nhiều cửa hàng khác nhau.</p>
+			</div>
+			<a class="shop-add-button" href="{{ url_for('customer_shop') }}">Tiếp tục mua hàng</a>
+		</div>
+
+		{% with messages = get_flashed_messages(with_categories=true) %}
+			{% for category, message in messages %}
+				<div class="flash flash-{{ category }}">{{ message }}</div>
+			{% endfor %}
+		{% endwith %}
+
+		{% if cart_items %}
+			<section class="shop-panel">
+				<div class="orders-table-wrap">
+					<table class="orders-table">
+						<thead>
+							<tr>
+								<th>Sản phẩm</th>
+								<th>Cửa hàng</th>
+								<th>Giá</th>
+								<th>Số lượng</th>
+								<th>Tạm tính</th>
+								<th>Thao tác</th>
+							</tr>
+						</thead>
+						<tbody>
+							{% for item in cart_items %}
+								<tr>
+									<td>
+										<strong>{{ item.FoodName }}</strong>
+										{% if not item.CanCheckout %}<br><small class="cart-unavailable">Không đủ hàng hoặc đã hết hàng</small>{% endif %}
+									</td>
+									<td>{{ item.StoreName }}</td>
+									<td>{{ "{:,.0f}".format(item.RescuePrice) }}đ</td>
+									<td>
+										<form class="cart-quantity-form" action="{{ url_for('update_cart_item', batch_id=item.BatchId) }}" method="post">
+											<label class="visually-hidden" for="quantity-{{ item.BatchId }}">Số lượng {{ item.FoodName }}</label>
+											<input id="quantity-{{ item.BatchId }}" name="quantity" type="number" min="1" max="{{ item.AvailableQuantity }}" value="{{ item.Quantity }}" required>
+											<button class="shop-view" type="submit">Cập nhật</button>
+										</form>
+									</td>
+									<td>{{ "{:,.0f}".format(item.LineTotal) }}đ</td>
+									<td>
+										<form class="cart-remove-form" action="{{ url_for('remove_cart_item', batch_id=item.BatchId) }}" method="post">
+											<button class="shop-delete" type="submit">Xóa</button>
+										</form>
+									</td>
+								</tr>
+							{% endfor %}
+						</tbody>
+					</table>
+				</div>
+				<div class="cart-summary">
+					<strong>Tổng cộng: {{ "{:,.0f}".format(total) }}đ</strong>
+					<form action="{{ url_for('checkout_cart') }}" method="post">
+						<button class="shop-submit" type="submit" {% if not cart_ready %}disabled{% endif %}>Đặt mua</button>
+					</form>
+				</div>
+			</section>
+		{% else %}
+			<div class="shop-empty">Giỏ hàng đang trống. Hãy chọn món từ các cửa hàng.</div>
+		{% endif %}
+	</main>
+</body>
+</html>

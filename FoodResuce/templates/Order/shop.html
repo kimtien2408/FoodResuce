@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Đơn hàng cửa hàng - FoodRescue</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="shop-index-page">
+    <header class="shop-header">
+        <div class="container shop-header-content">
+            <a class="shop-brand" href="{{ url_for('shop_dashboard') }}">FoodRescue Shop</a>
+            <nav class="shop-nav">
+                <a href="{{ url_for('shop_dashboard') }}">Kho hàng</a>
+                <a class="active" href="{{ url_for('shop_orders') }}">Đơn hàng</a>
+                <a href="{{ url_for('account_profile') }}">Hồ sơ</a>
+                <span>Xin chào, {{ session.get('full_name') }}</span>
+                <a href="{{ url_for('logout') }}">Đăng xuất</a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="container shop-main">
+        <div class="shop-title-row">
+            <div>
+                <p class="eyebrow">{{ store.StoreName if store else 'FoodRescue Shop' }}</p>
+                <h1>Danh sách đơn hàng</h1>
+                <p>Đơn hàng từ các sản phẩm thuộc cửa hàng của bạn.</p>
+            </div>
+            <a class="shop-add-button" href="{{ url_for('shop_dashboard') }}">Quay lại kho hàng</a>
+        </div>
+
+        <section class="shop-panel orders-panel">
+            <div class="orders-table-wrap">
+                <table class="orders-table">
+                    <thead>
+                        <tr>
+                            <th>Mã đơn</th>
+                            <th>Sản phẩm</th>
+                            <th>Khách hàng</th>
+                            <th>Số lượng</th>
+                            <th>Tổng tiền</th>
+                            <th>Trạng thái</th>
+                            <th>Ngày đặt</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for order in orders %}
+                            <tr>
+                                <td>#{{ order.OrderId }}</td>
+                                <td>{{ order.FoodName }}</td>
+                                <td>{{ order.CustomerName }}<br><small>{{ order.CustomerPhone }}</small></td>
+                                <td>{{ order.Quantity }}</td>
+                                <td>{{ "{:,.0f}".format(order.TotalPrice) }}đ</td>
+                                <td><span class="status">{{ order.OrderStatus }}</span></td>
+                                <td>{{ order.CreatedAt }}</td>
+                            </tr>
+                        {% else %}
+                            <tr><td colspan="7" class="shop-empty">Chưa có đơn hàng nào.</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+</body>
+</html>

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thêm sản phẩm - FoodRescue</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="shop-index-page">
+    <main class="container product-page">
+        <a class="back-link" href="{{ url_for('shop_dashboard') }}">← Quay lại kho hàng</a>
+        <section class="shop-panel product-page-panel">
+            <p class="eyebrow">Quản lý sản phẩm</p>
+            <h1>Thêm sản phẩm mới</h1>
+            <p class="page-description">Đăng một sản phẩm mới cho cửa hàng của bạn.</p>
+            <form class="shop-form product-page-form" action="{{ url_for('save_shop_product') }}" method="post" enctype="multipart/form-data">
+                <label>Tên món<input name="food_name" type="text" required></label>
+                <label>Hình ảnh<input name="image" type="file" accept="image/png,image/jpeg,image/gif,image/webp"></label>
+                <label>Giá gốc<input name="original_price" type="number" min="0" step="1000" required></label>
+                <label>Giá giải cứu<input name="rescue_price" type="number" min="0" step="1000" required></label>
+                <label>Số lượng<input name="available_quantity" type="number" min="1" required></label>
+                <label>Giờ bắt đầu nhận<input name="pickup_start_time" type="time" required></label>
+                <label>Giờ kết thúc nhận<input name="pickup_end_time" type="time" required></label>
+                <button class="shop-submit" type="submit">Thêm sản phẩm</button>
+            </form>
+        </section>
+    </main>
+</body>
+</html>

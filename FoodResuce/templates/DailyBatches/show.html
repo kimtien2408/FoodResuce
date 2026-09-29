@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ batch.FoodName }} - FoodRescue</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="shop-index-page">
+    <main class="container product-page">
+        <a class="back-link" href="{{ url_for('shop_dashboard') }}">← Quay lại kho hàng</a>
+        <section class="shop-panel product-detail-page">
+            <div class="detail-image">
+                {% if batch.ImageUrl %}<img src="{{ batch.ImageUrl }}" alt="{{ batch.FoodName }}">{% else %}<span>🥐</span>{% endif %}
+            </div>
+            <div class="detail-content">
+                <span class="shop-category">SẢN PHẨM CỦA SHOP</span>
+                <h1>{{ batch.FoodName }}</h1>
+                <p class="page-description">{{ batch.StoreName }}</p>
+                <dl class="detail-list">
+                    <dt>Giá gốc</dt><dd>{{ "{:,.0f}".format(batch.OriginalPrice) }}đ</dd>
+                    <dt>Giá giải cứu</dt><dd>{{ "{:,.0f}".format(batch.RescuePrice) }}đ</dd>
+                    <dt>Số lượng còn lại</dt><dd>{{ batch.AvailableQuantity }} suất</dd>
+                    <dt>Khung giờ nhận</dt><dd>{{ batch.PickupStartTime }} - {{ batch.PickupEndTime }}</dd>
+                    <dt>Trạng thái</dt><dd><span class="status">{{ batch.Status }}</span></dd>
+                </dl>
+                <a class="shop-edit-link" href="{{ url_for('edit_shop_product', batch_id=batch.BatchId) }}">✏ Chỉnh sửa sản phẩm</a>
+            </div>
+        </section>
+    </main>
+</body>
+</html>
